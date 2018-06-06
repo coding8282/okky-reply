@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.okky.reply.domain.repository.ReplyMapper">
+    <sql id="sql-projection">
+        SELECT
+        R.ID,
+        R.ARTICLE_ID,
+        R.REPLIER_ID,
+        R.REPLIER_NAME,
+        R.BODY,
+        IF(R.ACCEPTED_ON!=null,'true','false') AS ACCEPTED,
+        (SELECT COUNT(*) FROM reply_vote V WHERE V.REPLY_ID=R.ID AND V.VOTING='UP') AS UP_VOTE_COUNT,
+        (SELECT COUNT(*) FROM reply_vote V WHERE V.REPLY_ID=R.ID AND V.VOTING='DOWN') AS DOWN_VOTE_COUNT,
+        R.REPLIED_ON,
+        R.UPDATED_ON,
+        R.ACCEPTED_ON,
+        (R.REPLIER_ID=#{myId}) AS REPLIED_BY_ME,
+        (SELECT COUNT(*)>0 FROM reply_vote V WHERE V.REPLY_ID=R.ID AND V.VOTER_ID=#{myId} AND V.VOTING='UP') AS UP_VOTED_BY_ME,
+        (SELECT COUNT(*)>0 FROM reply_vote V WHERE V.REPLY_ID=R.ID AND V.VOTER_ID=#{myId} AND V.VOTING='DOWN') AS DOWN_VOTED_BY_ME
+    </sql>
+    <sql id="sql-filter">
+        <where>
+            <trim suffixOverrides="AND|OR">
+                <if test="articleId!=null">
+                    R.ARTICLE_ID = #{articleId} AND
+                </if>
+            </trim>
+        </where>
+    </sql>
+
+    <select id="select" resultType="org.okky.reply.domain.repository.dto.ReplyDto">
+        <include refid="sql-projection"/>
+        FROM reply R
+        <include refid="sql-filter"/>
+        ORDER BY R.REPLIED_ON ASC
+    </select>
+    <select id="count" resultType="long">
+        SELECT
+        COUNT(*)
+        FROM reply R
+        <include refid="sql-filter"/>
+    </select>
+</mapper>

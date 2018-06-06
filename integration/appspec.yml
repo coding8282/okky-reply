@@ -1,0 +1,14 @@
+version: 0.0
+os: linux
+
+files:
+  - source: okky-reply-1.0.0.jar
+    destination: /home/ec2-user
+
+hooks:
+  BeforeInstall:
+    - location: terminate-app.sh
+      timeout: 120
+  AfterInstall:
+    - location: start-app.sh
+      timeout: 120
