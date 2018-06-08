@@ -172,6 +172,9 @@
                 <repository>
                     <id>okky-snapshot</id>
                     <url>${okky.repo.url}/prod/snapshot</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
                 </repository>
             </repositories>
         </profile>
