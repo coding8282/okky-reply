@@ -15,7 +15,7 @@ import static org.springframework.cloud.aws.messaging.listener.SqsMessageDeletio
 @Component
 @AllArgsConstructor
 @FieldDefaults(level = PRIVATE)
-class QueueProcessor {
+class SQSConsumer {
     ApplicationEventPublisher publisher;
     ObjectMapper mapper;
 
