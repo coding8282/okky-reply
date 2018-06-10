@@ -33,7 +33,7 @@ public class ReplyService {
         constraint.rejectWriteIfArticleBlocked(articleId);
         Reply reply = toReply(cmd);
         repository.save(reply);
-        proxy.sendMessage(toReplyWrote(reply));
+        proxy.sendEvent(toReplyWrote(reply));
     }
 
     @PreAuthorize("@replySecurityInspector.isThisWriter(#cmd.replyId)")
@@ -52,7 +52,7 @@ public class ReplyService {
     public void remove(String replyId) {
         Reply reply = constraint.checkExistsAndGet(replyId);
         repository.delete(reply);
-        proxy.sendMessage(new ReplyRemoved(replyId));
+        proxy.sendEvent(new ReplyRemoved(replyId));
     }
 
     public void removeForce(String replyId) {

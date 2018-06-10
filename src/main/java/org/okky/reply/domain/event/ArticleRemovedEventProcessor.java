@@ -24,6 +24,6 @@ class ArticleRemovedEventProcessor {
     void when(ArticleRemoved event) {
         List<String> ids = repository.findIdsByArticleId(event.getArticleId());
         repository.deleteByArticleId(event.getArticleId());
-        proxy.sendMessage(new RepliesRemoved(ids));
+        proxy.sendEvent(new RepliesRemoved(ids));
     }
 }
