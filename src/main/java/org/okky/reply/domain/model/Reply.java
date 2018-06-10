@@ -7,7 +7,6 @@ import org.hibernate.envers.Audited;
 import org.okky.share.domain.Aggregate;
 import org.okky.share.domain.AssertionConcern;
 import org.okky.share.util.JsonUtil;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -46,7 +45,6 @@ public class Reply implements Aggregate {
     @Column(nullable = false)
     private String replierName;
 
-    @CreatedDate
     @Column(nullable = false, updatable = false, columnDefinition = "BIGINT UNSIGNED")
     private long repliedOn;
 
@@ -63,6 +61,7 @@ public class Reply implements Aggregate {
         setBody(body);
         setReplierId(replierId);
         setReplierName(replierName);
+        setRepliedOn(currentTimeMillis());
     }
 
     public static Reply sample() {
@@ -118,5 +117,9 @@ public class Reply implements Aggregate {
     private void setReplierName(String replierName) {
         AssertionConcern.assertArgNotNull(replierName, "답변자 이름은 필수입니다.");
         this.replierName = replierName;
+    }
+
+    private void setRepliedOn(long repliedOn) {
+        this.repliedOn = repliedOn;
     }
 }
