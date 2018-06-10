@@ -3,7 +3,7 @@ spring:
   cloud:
     config:
       uri: http://localhost:9000
-      name: application-okky, application-okky-reply
+      name: application-okky, application-okky-reply, okky-topic
 
 ---
 
@@ -12,4 +12,4 @@ spring:
   cloud:
     config:
       uri: http://config.okky.io:9000
-      name: application-okky, application-okky-reply
+      name: application-okky, application-okky-reply, okky-topic
