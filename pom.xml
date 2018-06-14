@@ -146,9 +146,6 @@
             <id>spring-snapshots</id>
             <name>Spring Snapshots</name>
             <url>https://repo.spring.io/snapshot</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
         </repository>
         <repository>
             <id>spring-milestones</id>
@@ -172,7 +169,6 @@
                     <id>okky-snapshot</id>
                     <url>${okky.repo.url}/prod/snapshot</url>
                     <snapshots>
-                        <enabled>true</enabled>
                         <updatePolicy>always</updatePolicy>
                     </snapshots>
                 </repository>
