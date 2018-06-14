@@ -19,7 +19,7 @@ class SQSConsumer {
     ApplicationEventPublisher publisher;
     ObjectMapper mapper;
 
-    @SqsListener(value = "${app.reply-queue}", deletionPolicy = ON_SUCCESS)
+    @SqsListener(value = "${app.queue.reply}", deletionPolicy = ON_SUCCESS)
     @SneakyThrows
     void receive(String json) {
         String message = mapper.readTree(json).get("Message").asText();
