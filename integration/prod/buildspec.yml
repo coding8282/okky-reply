@@ -7,8 +7,8 @@ phases:
 
 artifacts:
   files:
-    - integration/appspec.yml
-    - integration/scripts/*
+    - integration/prod/appspec.yml
+    - integration/prod/scripts/*
     - target/okky-reply-1.0.0.jar
   discard-paths: yes
 
