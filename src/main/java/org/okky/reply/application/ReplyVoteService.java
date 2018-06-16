@@ -29,9 +29,11 @@ public class ReplyVoteService {
         if (vote == null) {
             vote(replyId, voterId, voting);
         } else {
-            unVote(vote);
-            if (!vote.isSameDirection(voting))
-                vote(replyId, voterId, voting);
+            if (vote.isSameDirection(voting)) {
+                unVote(vote);
+            } else {
+                vote.reverseDirection();
+            }
         }
     }
 
