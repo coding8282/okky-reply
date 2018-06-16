@@ -12,6 +12,8 @@ import java.util.UUID;
 
 import static javax.persistence.EnumType.STRING;
 import static lombok.AccessLevel.PROTECTED;
+import static org.okky.reply.domain.model.Voting.DOWN;
+import static org.okky.reply.domain.model.Voting.UP;
 import static org.okky.share.domain.AssertionConcern.assertArgNotNull;
 
 @NoArgsConstructor(access = PROTECTED)
@@ -19,15 +21,20 @@ import static org.okky.share.domain.AssertionConcern.assertArgNotNull;
 @Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@Table(uniqueConstraints = {
+        @UniqueConstraint(
+                name = "U_REPLY_ID_VOTER_ID",
+                columnNames = {"REPLY_ID", "VOTER_ID"})
+})
 public class ReplyVote implements Aggregate {
     @Id
     @Column(length = 50)
     private String id;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "REPLY_ID", nullable = false, length = 50)
     private String replyId;
 
-    @Column(nullable = false)
+    @Column(name = "VOTER_ID", nullable = false)
     private String voterId;
 
     @Enumerated(STRING)
@@ -48,12 +55,19 @@ public class ReplyVote implements Aggregate {
     public static ReplyVote sample() {
         String replyId = "r-a33";
         String voterId = "m-aa333a33";
-        Voting voting = Voting.UP;
+        Voting voting = UP;
         return new ReplyVote(replyId, voterId, voting);
     }
 
     public static void main(String[] args) {
         System.out.println(sample());
+    }
+
+    public void reverseDirection() {
+        if (voting == UP)
+            setVoting(DOWN);
+        else
+            setVoting(UP);
     }
 
     public boolean isSameDirection(Voting voting) {
