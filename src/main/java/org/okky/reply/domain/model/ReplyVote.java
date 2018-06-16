@@ -3,6 +3,7 @@ package org.okky.reply.domain.model;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.okky.share.domain.Aggregate;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -11,6 +12,7 @@ import javax.persistence.*;
 import java.util.UUID;
 
 import static javax.persistence.EnumType.STRING;
+import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
 import static org.okky.reply.domain.model.Voting.DOWN;
 import static org.okky.reply.domain.model.Voting.UP;
@@ -18,6 +20,7 @@ import static org.okky.share.domain.AssertionConcern.assertArgNotNull;
 
 @NoArgsConstructor(access = PROTECTED)
 @EqualsAndHashCode(of = "id", callSuper = false)
+@FieldDefaults(level = PRIVATE)
 @Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -29,21 +32,21 @@ import static org.okky.share.domain.AssertionConcern.assertArgNotNull;
 public class ReplyVote implements Aggregate {
     @Id
     @Column(length = 50)
-    private String id;
+    String id;
 
     @Column(name = "REPLY_ID", nullable = false, length = 50)
-    private String replyId;
+    String replyId;
 
     @Column(name = "VOTER_ID", nullable = false)
-    private String voterId;
+    String voterId;
 
     @Enumerated(STRING)
     @Column(nullable = false, columnDefinition = "CHAR(5)")
-    private Voting voting;
+    Voting voting;
 
     @CreatedDate
     @Column(nullable = false, updatable = false, columnDefinition = "BIGINT UNSIGNED")
-    private long votedOn;
+    long votedOn;
 
     public ReplyVote(String replyId, String voterId, Voting voting) {
         setId("rv-" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 15));

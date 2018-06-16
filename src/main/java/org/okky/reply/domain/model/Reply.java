@@ -3,6 +3,7 @@ package org.okky.reply.domain.model;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.envers.Audited;
 import org.okky.share.domain.Aggregate;
 import org.okky.share.domain.AssertionConcern;
@@ -15,10 +16,12 @@ import java.util.UUID;
 
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
+import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
 
 @NoArgsConstructor(access = PROTECTED)
 @EqualsAndHashCode(of = "id", callSuper = false)
+@FieldDefaults(level = PRIVATE)
 @Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -30,30 +33,30 @@ import static lombok.AccessLevel.PROTECTED;
 public class Reply implements Aggregate {
     @Id
     @Column(length = 50)
-    private String id;
+    String id;
 
     @Column(name = "ARTICLE_ID", nullable = false, length = 50)
-    private String articleId;
+    String articleId;
 
     @Column(nullable = false, length = 500)
     @Audited
-    private String body;
+    String body;
 
     @Column(nullable = false)
-    private String replierId;
+    String replierId;
 
     @Column(nullable = false)
-    private String replierName;
+    String replierName;
 
     @Column(nullable = false, updatable = false, columnDefinition = "BIGINT UNSIGNED")
-    private long repliedOn;
+    long repliedOn;
 
     @LastModifiedDate
     @Column(columnDefinition = "BIGINT UNSIGNED")
-    private Long updatedOn;
+    Long updatedOn;
 
     @Column(columnDefinition = "BIGINT UNSIGNED")
-    private Long acceptedOn;
+    Long acceptedOn;
 
     public Reply(String articleId, String body, String replierId, String replierName) {
         setId("r-" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 15));
