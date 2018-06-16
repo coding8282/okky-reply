@@ -9,13 +9,12 @@ import org.okky.reply.domain.repository.ReplyRepository;
 import org.okky.reply.domain.service.ReplyConstraint;
 import org.okky.reply.domain.service.ReplyProxy;
 import org.okky.share.event.ReplyRemoved;
+import org.okky.share.event.ReplyWrote;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static lombok.AccessLevel.PRIVATE;
-import static org.okky.reply.application.ModelMapper.toReply;
-import static org.okky.reply.application.ModelMapper.toReplyWrote;
 
 @Service
 @Transactional
@@ -31,9 +30,22 @@ public class ReplyService {
 
         constraint.checkArticleExists(articleId);
         constraint.rejectWriteIfArticleBlocked(articleId);
-        Reply reply = toReply(cmd);
+        Reply reply = new Reply(
+                cmd.getArticleId(),
+                cmd.getBody(),
+                cmd.getReplierId(),
+                cmd.getReplierName());
         repository.save(reply);
-        proxy.sendEvent(toReplyWrote(reply));
+        proxy.sendEvent(new ReplyWrote(
+                reply.getId(),
+                reply.getArticleId(),
+                reply.getBody(),
+                reply.getReplierId(),
+                reply.getReplierName(),
+                reply.getRepliedOn(),
+                reply.getUpdatedOn(),
+                reply.getAcceptedOn()
+        ));
     }
 
     @PreAuthorize("@replySecurityInspector.isThisWriter(#cmd.replyId)")
