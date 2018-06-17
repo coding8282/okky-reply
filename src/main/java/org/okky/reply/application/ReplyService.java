@@ -9,7 +9,6 @@ import org.okky.reply.domain.repository.ReplyRepository;
 import org.okky.reply.domain.service.ReplyConstraint;
 import org.okky.reply.domain.service.ReplyProxy;
 import org.okky.share.event.ReplyRemoved;
-import org.okky.share.event.ReplyWrote;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +32,7 @@ public class ReplyService {
         constraint.rejectWriteIfArticleBlocked(articleId);
         Reply reply = mapper.toModel(cmd);
         repository.save(reply);
-        ReplyWrote event = mapper.toEvent(reply);
-        proxy.sendEvent(event);
+        proxy.sendEvent(mapper.toEvent(reply));
     }
 
     @PreAuthorize("@replySecurityInspector.isThisWriter(#cmd.replyId)")
