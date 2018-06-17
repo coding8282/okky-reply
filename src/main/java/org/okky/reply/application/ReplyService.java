@@ -24,28 +24,17 @@ public class ReplyService {
     ReplyRepository repository;
     ReplyConstraint constraint;
     ReplyProxy proxy;
+    ModelMapper mapper;
 
     public void write(WriteReplyCommand cmd) {
         String articleId = cmd.getArticleId();
 
         constraint.checkArticleExists(articleId);
         constraint.rejectWriteIfArticleBlocked(articleId);
-        Reply reply = new Reply(
-                cmd.getArticleId(),
-                cmd.getBody(),
-                cmd.getReplierId(),
-                cmd.getReplierName());
+        Reply reply = mapper.toModel(cmd);
         repository.save(reply);
-        proxy.sendEvent(new ReplyWrote(
-                reply.getId(),
-                reply.getArticleId(),
-                reply.getBody(),
-                reply.getReplierId(),
-                reply.getReplierName(),
-                reply.getRepliedOn(),
-                reply.getUpdatedOn(),
-                reply.getAcceptedOn()
-        ));
+        ReplyWrote event = mapper.toEvent(reply);
+        proxy.sendEvent(event);
     }
 
     @PreAuthorize("@replySecurityInspector.isThisWriter(#cmd.replyId)")
