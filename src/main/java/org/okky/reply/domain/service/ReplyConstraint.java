@@ -1,6 +1,7 @@
 package org.okky.reply.domain.service;
 
 import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.okky.reply.domain.model.Reply;
 import org.okky.reply.domain.repository.ReplyRepository;
 import org.okky.share.execption.ExternalServiceError;
@@ -12,13 +13,15 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import static java.lang.String.format;
+import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @AllArgsConstructor
+@FieldDefaults(level = PRIVATE)
 public class ReplyConstraint {
-    private ReplyRepository repository;
-    private RestTemplate template;
+    ReplyRepository repository;
+    RestTemplate template;
 
     public void checkExists(String replyId) {
         checkExistsAndGet(replyId);
