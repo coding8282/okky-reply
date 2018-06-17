@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.okky.reply.TestMother;
+import org.okky.reply.application.command.ModifyReplyCommand;
 import org.okky.reply.application.command.WriteReplyCommand;
 import org.okky.reply.domain.model.Reply;
 import org.okky.reply.domain.repository.ReplyRepository;
@@ -54,6 +55,18 @@ public class ReplyServiceTest extends TestMother {
         o.verify(repository).save(reply);
         o.verify(mapper).toEvent(reply);
         o.verify(proxy).sendEvent(event);
+    }
+
+    @Test
+    public void modify() {
+        ModifyReplyCommand cmd = new ModifyReplyCommand("r", "b");
+        when(constraint.checkExistsAndGet("r")).thenReturn(reply);
+
+        service.modify(cmd);
+
+        InOrder o = inOrder(constraint, reply);
+        o.verify(constraint).checkExistsAndGet("r");
+        o.verify(reply).modify("b");
     }
 
     @Test
