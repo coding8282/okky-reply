@@ -29,15 +29,16 @@ public class ReplyVoteService {
 
         replyConstraint.checkExists(replyId);
         replyVoteConstraint.checkVoterExists(voterId);
-        ReplyVote vote = repository.find(replyId, voterId).orElse(null);
-        if (vote == null) {
-            vote(replyId, voterId, voting);
-        } else {
+        boolean alreadyVoted = repository.wasAlreadyVoted(replyId, voterId);
+        if (alreadyVoted) {
+            ReplyVote vote = repository.find(replyId, voterId).get();
             if (vote.isSameDirection(voting)) {
                 unVote(vote);
             } else {
                 vote.reverseDirection();
             }
+        } else {
+            vote(replyId, voterId, voting);
         }
     }
 
