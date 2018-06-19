@@ -12,5 +12,5 @@ import lombok.Setter;
 public class ToggleVoteCommand {
     String replyId;
     String voterId;
-    String voting;
+    String direction;
 }

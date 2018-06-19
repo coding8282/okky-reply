@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.okky.reply.application.command.ToggleVoteCommand;
 import org.okky.reply.domain.model.ReplyVote;
-import org.okky.reply.domain.model.Voting;
+import org.okky.reply.domain.model.VotingDirection;
 import org.okky.reply.domain.repository.ReplyVoteRepository;
 import org.okky.reply.domain.service.ReplyConstraint;
 import org.okky.reply.domain.service.ReplyVoteConstraint;
@@ -25,26 +25,26 @@ public class ReplyVoteService {
     public void toggleVote(ToggleVoteCommand cmd) {
         String replyId = cmd.getReplyId();
         String voterId = cmd.getVoterId();
-        Voting voting = Voting.parse(cmd.getVoting());
+        VotingDirection direction = VotingDirection.parse(cmd.getDirection());
 
         replyConstraint.checkExists(replyId);
         replyVoteConstraint.checkVoterExists(voterId);
         boolean alreadyVoted = repository.wasAlreadyVoted(replyId, voterId);
         if (alreadyVoted) {
             ReplyVote vote = repository.find(replyId, voterId).get();
-            if (vote.isSameDirection(voting)) {
+            if (vote.isSameDirection(direction)) {
                 unVote(vote);
             } else {
                 vote.reverseDirection();
             }
         } else {
-            vote(replyId, voterId, voting);
+            vote(replyId, voterId, direction);
         }
     }
 
     // --------------------------------------------
-    private void vote(String replyId, String voterId, Voting voting) {
-        ReplyVote vote = new ReplyVote(replyId, voterId, voting);
+    private void vote(String replyId, String voterId, VotingDirection direction) {
+        ReplyVote vote = new ReplyVote(replyId, voterId, direction);
         repository.save(vote);
     }
 

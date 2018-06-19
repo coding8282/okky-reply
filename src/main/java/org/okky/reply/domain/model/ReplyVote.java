@@ -14,9 +14,10 @@ import java.util.UUID;
 import static javax.persistence.EnumType.STRING;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
-import static org.okky.reply.domain.model.Voting.DOWN;
-import static org.okky.reply.domain.model.Voting.UP;
+import static org.okky.reply.domain.model.VotingDirection.DOWN;
+import static org.okky.reply.domain.model.VotingDirection.UP;
 import static org.okky.share.domain.AssertionConcern.assertArgNotNull;
+import static org.okky.share.util.JsonUtil.toPrettyJson;
 
 @NoArgsConstructor(access = PROTECTED)
 @EqualsAndHashCode(of = "id", callSuper = false)
@@ -42,39 +43,39 @@ public class ReplyVote implements Aggregate {
 
     @Enumerated(STRING)
     @Column(nullable = false, columnDefinition = "CHAR(5)")
-    Voting voting;
+    VotingDirection direction;
 
     @CreatedDate
     @Column(nullable = false, updatable = false, columnDefinition = "BIGINT UNSIGNED")
     long votedOn;
 
-    public ReplyVote(String replyId, String voterId, Voting voting) {
+    public ReplyVote(String replyId, String voterId, VotingDirection direction) {
         setId("rv-" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 15));
         setReplyId(replyId);
         setVoterId(voterId);
-        setVoting(voting);
+        setDirection(direction);
     }
 
     public static ReplyVote sample() {
         String replyId = "r-a33";
         String voterId = "m-aa333a33";
-        Voting voting = UP;
-        return new ReplyVote(replyId, voterId, voting);
+        VotingDirection direction = UP;
+        return new ReplyVote(replyId, voterId, direction);
     }
 
     public static void main(String[] args) {
-        System.out.println(sample());
+        System.out.println(toPrettyJson(sample()));
     }
 
     public void reverseDirection() {
-        if (voting == UP)
-            setVoting(DOWN);
+        if (direction == UP)
+            setDirection(DOWN);
         else
-            setVoting(UP);
+            setDirection(UP);
     }
 
-    public boolean isSameDirection(Voting voting) {
-        return this.voting == voting;
+    public boolean isSameDirection(VotingDirection direction) {
+        return this.direction == direction;
     }
 
     // ------------------------
@@ -93,8 +94,8 @@ public class ReplyVote implements Aggregate {
         this.voterId = voterId;
     }
 
-    private void setVoting(Voting voting) {
-        assertArgNotNull(voting, "투표는 필수입니다.");
-        this.voting = voting;
+    private void setDirection(VotingDirection direction) {
+        assertArgNotNull(direction, "투표 방향은 필수입니다.");
+        this.direction = direction;
     }
 }
