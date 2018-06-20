@@ -15,15 +15,16 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 class ReplyVoteResource {
     ReplyVoteService service;
     VoteMapper mapper;
+    ContextHolder holder;
 
     @PutMapping(value = "/replies/{replyId}/votes/toggle", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     VoteDto toggleVote(
             @PathVariable String replyId,
             @RequestBody ToggleVoteCommand cmd) {
         cmd.setReplyId(replyId);
-        cmd.setVoterId(ContextHelper.getId());
+        cmd.setVoterId(holder.getId());
         service.toggleVote(cmd);
-        return mapper.selectVoteSummaryByReplyId(replyId, ContextHelper.getId());
+        return mapper.selectVoteSummaryByReplyId(replyId, holder.getId());
     }
 
     @GetMapping(value = "/members/{memberId}/votes/count", produces = APPLICATION_JSON_VALUE)

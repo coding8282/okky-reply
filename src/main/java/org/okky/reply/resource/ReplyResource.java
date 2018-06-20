@@ -26,6 +26,7 @@ class ReplyResource {
     ReplyService service;
     ReplyMapper mapper;
     ReplyRepository repository;
+    ContextHolder holder;
 
     @GetMapping(value = "/replies/{replyId}/exists")
     boolean exists(@PathVariable String replyId) {
@@ -43,7 +44,7 @@ class ReplyResource {
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "20") int pageSize) {
         Map<String, Object> params = new HashMap<>();
-        params.put("myId", ContextHelper.getId());
+        params.put("myId", holder.getId());
         params.put("articleId", articleId);
         params.put("offset", (pageNo - 1) * pageSize);
         params.put("limit", pageSize);
@@ -71,7 +72,7 @@ class ReplyResource {
     void write(
             @PathVariable String articleId,
             @RequestBody WriteReplyCommand cmd) {
-        cmd.setReplierId(ContextHelper.getId());
+        cmd.setReplierId(holder.getId());
         cmd.setArticleId(articleId);
         service.write(cmd);
     }
