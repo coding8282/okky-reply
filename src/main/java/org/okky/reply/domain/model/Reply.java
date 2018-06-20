@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.envers.Audited;
 import org.okky.share.domain.Aggregate;
-import org.okky.share.domain.AssertionConcern;
 import org.okky.share.util.JsonUtil;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -18,6 +17,8 @@ import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
+import static org.okky.share.domain.AssertionConcern.assertArgLength;
+import static org.okky.share.domain.AssertionConcern.assertArgNotNull;
 
 @NoArgsConstructor(access = PROTECTED)
 @EqualsAndHashCode(of = "id", callSuper = false)
@@ -97,28 +98,28 @@ public class Reply implements Aggregate {
     // ---------------------------------
 
     private void setId(String id) {
-        AssertionConcern.assertArgNotNull(id, "id는 필수입니다.");
+        assertArgNotNull(id, "id는 필수입니다.");
         this.id = id;
     }
 
     private void setArticleId(String articleId) {
-        AssertionConcern.assertArgNotNull(articleId, "게시글 id는 필수입니다.");
+        assertArgNotNull(articleId, "게시글 id는 필수입니다.");
         this.articleId = articleId;
     }
 
     private void setBody(String body) {
         String trimed = body.trim();
-        AssertionConcern.assertArgLength(trimed, 1, 500, format("답글은 %d~%d자까지 가능합니다.", 1, 500));
+        assertArgLength(trimed, 1, 500, format("답글은 %d~%d자까지 가능합니다.", 1, 500));
         this.body = trimed;
     }
 
     private void setReplierId(String replierId) {
-        AssertionConcern.assertArgNotNull(replierId, "답변자 id는 필수입니다.");
+        assertArgNotNull(replierId, "답변자 id는 필수입니다.");
         this.replierId = replierId;
     }
 
     private void setReplierName(String replierName) {
-        AssertionConcern.assertArgNotNull(replierName, "답변자 이름은 필수입니다.");
+        assertArgNotNull(replierName, "답변자 이름은 필수입니다.");
         this.replierName = replierName;
     }
 
