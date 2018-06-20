@@ -20,7 +20,7 @@ import static org.okky.share.domain.AssertionConcern.assertArgNotNull;
 import static org.okky.share.util.JsonUtil.toPrettyJson;
 
 @NoArgsConstructor(access = PROTECTED)
-@EqualsAndHashCode(of = "id", callSuper = false)
+@EqualsAndHashCode(of = "id")
 @FieldDefaults(level = PRIVATE)
 @Getter
 @Entity
