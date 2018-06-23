@@ -59,8 +59,8 @@ public class Reply implements Aggregate {
     @Column(columnDefinition = "BIGINT UNSIGNED")
     Long acceptedOn;
 
-    @Column(columnDefinition = "BIGINT UNSIGNED")
-    Long pinnedOn;
+    @Embedded
+    PinDetail pinDetail;
 
     public Reply(String articleId, String body, String replierId, String replierName) {
         setId("r-" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 15));
@@ -69,7 +69,7 @@ public class Reply implements Aggregate {
         setReplierId(replierId);
         setReplierName(replierName);
         setRepliedOn(currentTimeMillis());
-        setPinnedOn(null);
+        setPinDetail(null);
     }
 
     public static Reply sample() {
@@ -95,19 +95,12 @@ public class Reply implements Aggregate {
             acceptedOn = currentTimeMillis();
     }
 
-    public void pin() {
-        setPinnedOn(currentTimeMillis());
+    public void pin(String memo) {
+        setPinDetail(new PinDetail(memo));
     }
 
     public void unpin() {
-        setPinnedOn(null);
-    }
-
-    public void togglePin() {
-        if (pinned())
-            unpin();
-        else
-            pin();
+        setPinDetail(null);
     }
 
     public boolean accepted() {
@@ -115,7 +108,7 @@ public class Reply implements Aggregate {
     }
 
     public boolean pinned() {
-        return pinnedOn != null;
+        return pinDetail != null;
     }
 
     // ---------------------------------
@@ -150,7 +143,7 @@ public class Reply implements Aggregate {
         this.repliedOn = repliedOn;
     }
 
-    private void setPinnedOn(Long pinnedOn) {
-        this.pinnedOn = pinnedOn;
+    private void setPinDetail(PinDetail pinDetail) {
+        this.pinDetail = pinDetail;
     }
 }
