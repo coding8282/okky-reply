@@ -59,6 +59,9 @@ public class Reply implements Aggregate {
     @Column(columnDefinition = "BIGINT UNSIGNED")
     Long acceptedOn;
 
+    @Column(columnDefinition = "BIGINT UNSIGNED")
+    Long pinnedOn;
+
     public Reply(String articleId, String body, String replierId, String replierName) {
         setId("r-" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 15));
         setArticleId(articleId);
@@ -66,6 +69,7 @@ public class Reply implements Aggregate {
         setReplierId(replierId);
         setReplierName(replierName);
         setRepliedOn(currentTimeMillis());
+        setPinnedOn(null);
     }
 
     public static Reply sample() {
@@ -91,8 +95,19 @@ public class Reply implements Aggregate {
             acceptedOn = currentTimeMillis();
     }
 
+    public void togglePin() {
+        if (pinned())
+            pinnedOn = null;
+        else
+            pinnedOn = currentTimeMillis();
+    }
+
     public boolean accepted() {
         return acceptedOn != null;
+    }
+
+    public boolean pinned() {
+        return pinnedOn != null;
     }
 
     // ---------------------------------
@@ -125,5 +140,9 @@ public class Reply implements Aggregate {
 
     private void setRepliedOn(long repliedOn) {
         this.repliedOn = repliedOn;
+    }
+
+    private void setPinnedOn(Long pinnedOn) {
+        this.pinnedOn = pinnedOn;
     }
 }
