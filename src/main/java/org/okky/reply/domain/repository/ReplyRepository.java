@@ -13,14 +13,16 @@ import java.util.Optional;
 
 @RepositoryDefinition(domainClass = Reply.class, idClass = String.class)
 public interface ReplyRepository extends RevisionRepository<Reply, String, Long> {
+    boolean existsById(String id);
+    boolean existsByArticleId(String articleId);
     void save(Reply reply);
     Optional<Reply> findById(String id);
     @Query("select r.id from Reply r where r.articleId=:articleId")
     List<String> findIdsByArticleId(@Param("articleId") String articleId);
     @Query("select distinct r.replierId from Reply r where r.articleId=:articleId order by r.replierId desc")
     Page<String> findRepliersByArticleId(@Param("articleId") String articleId, Pageable pageable);
-    boolean existsById(String id);
-    boolean existsByArticleId(String articleId);
+    @Query("select r from Reply r where r.articleId=:articleId and r.pinnedOn is not null")
+    Optional<Reply> findPinned(@Param("articleId") String articleId);
     long countByReplierId(String replierId);
     long countByArticleId(String articleId);
     void delete(Reply reply);
