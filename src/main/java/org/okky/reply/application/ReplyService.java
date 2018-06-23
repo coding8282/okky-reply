@@ -47,7 +47,7 @@ public class ReplyService {
         reply.toggleAccept();
     }
 
-    public void togglePin(String replyId) {
+    public void togglePin(String replyId, String memo) {
         Reply reply = constraint.checkExistsAndGet(replyId);
         String articleId = reply.getArticleId();
         constraint.rejectIfWriterNotMatched(articleId);
@@ -56,7 +56,7 @@ public class ReplyService {
             reply.unpin();
         } else {
             unpinIfExists(articleId);
-            reply.pin();
+            reply.pin(memo);
         }
     }
 

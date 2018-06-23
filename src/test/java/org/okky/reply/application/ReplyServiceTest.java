@@ -112,7 +112,7 @@ public class ReplyServiceTest extends TestMother {
         when(reply.getArticleId()).thenReturn("a");
         when(reply.pinned()).thenReturn(true);
 
-        service.togglePin("r");
+        service.togglePin("r", "m");
 
         InOrder o = inOrder(constraint, reply, repository);
         o.verify(constraint).checkExistsAndGet("r");
@@ -120,7 +120,7 @@ public class ReplyServiceTest extends TestMother {
         o.verify(constraint).rejectIfWriterNotMatched("a");
         o.verify(reply).pinned();
         o.verify(reply).unpin();
-        o.verify(reply, never()).pin();
+        o.verify(reply, never()).pin("m");
         o.verify(repository, never()).findPinned(anyString());
     }
 
@@ -131,7 +131,7 @@ public class ReplyServiceTest extends TestMother {
         when(reply.pinned()).thenReturn(false);
         when(repository.findPinned("a")).thenReturn(Optional.empty());
 
-        service.togglePin("r");
+        service.togglePin("r", "m");
 
         InOrder o = inOrder(constraint, repository, reply);
         o.verify(constraint).checkExistsAndGet("r");
@@ -139,7 +139,7 @@ public class ReplyServiceTest extends TestMother {
         o.verify(constraint).rejectIfWriterNotMatched("a");
         o.verify(reply).pinned();
         o.verify(repository).findPinned("a");
-        o.verify(reply).pin();
+        o.verify(reply).pin("m");
         o.verify(reply, never()).unpin();
     }
 
@@ -151,7 +151,7 @@ public class ReplyServiceTest extends TestMother {
         when(reply.pinned()).thenReturn(false);
         when(repository.findPinned("a")).thenReturn(Optional.of(previousPinnedReply));
 
-        service.togglePin("r");
+        service.togglePin("r", "m");
 
         InOrder o = inOrder(constraint, repository, reply, previousPinnedReply);
         o.verify(constraint).checkExistsAndGet("r");
@@ -160,7 +160,7 @@ public class ReplyServiceTest extends TestMother {
         o.verify(reply).pinned();
         o.verify(repository).findPinned("a");
         o.verify(previousPinnedReply).unpin();
-        o.verify(reply).pin();
+        o.verify(reply).pin("m");
         o.verify(reply, never()).unpin();
     }
 }
