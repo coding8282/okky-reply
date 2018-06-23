@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.okky.reply.domain.model.Reply;
 import org.okky.reply.domain.repository.ReplyRepository;
+import org.okky.reply.resource.ContextHolder;
 import org.okky.share.execption.ExternalServiceError;
 import org.okky.share.execption.ModelConflicted;
 import org.okky.share.execption.ModelNotExists;
@@ -22,6 +23,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class ReplyConstraint {
     ReplyRepository repository;
     RestTemplate template;
+    ContextHolder holder;
 
     public void checkExists(String replyId) {
         checkExistsAndGet(replyId);
@@ -53,6 +55,16 @@ public class ReplyConstraint {
                 throw new ModelNotExists(format("해당 게시글은 존재하지 않습니다: '%s'", articleId));
             else
                 throw new ExternalServiceError(e.getResponseBodyAsByteArray());
+        }
+    }
+
+    public void rejectIfWriterNotMatched(String articleId) {
+        try {
+            ResponseEntity<Boolean> result = template.getForEntity(format("/articles/%s/writers/%s/match", articleId, holder.getId()), Boolean.class);
+            if (!result.getBody())
+                throw new ModelConflicted(format("답글 고정/해제는 오로지 게시글 작성자만 가능합니다: '%s'", articleId));
+        } catch (HttpStatusCodeException e) {
+            throw new ExternalServiceError(e.getResponseBodyAsByteArray());
         }
     }
 }
