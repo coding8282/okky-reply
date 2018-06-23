@@ -17,10 +17,11 @@ import org.okky.reply.domain.service.ReplyProxy;
 import org.okky.share.event.ReplyRemoved;
 import org.okky.share.event.ReplyWrote;
 
+import java.util.Optional;
+
 import static lombok.AccessLevel.PRIVATE;
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @FieldDefaults(level = PRIVATE)
@@ -103,5 +104,63 @@ public class ReplyServiceTest extends TestMother {
         o.verify(constraint).checkExistsAndGet("r");
         o.verify(repository).delete(reply);
         o.verify(proxy).sendEvent(isA(ReplyRemoved.class));
+    }
+
+    @Test
+    public void togglePin_이미_고정된_답글인_경우_단순히_해제() {
+        when(constraint.checkExistsAndGet("r")).thenReturn(reply);
+        when(reply.getArticleId()).thenReturn("a");
+        when(reply.pinned()).thenReturn(true);
+
+        service.togglePin("r");
+
+        InOrder o = inOrder(constraint, reply, repository);
+        o.verify(constraint).checkExistsAndGet("r");
+        o.verify(reply).getArticleId();
+        o.verify(constraint).rejectIfWriterNotMatched("a");
+        o.verify(reply).pinned();
+        o.verify(reply).unpin();
+        o.verify(reply, never()).pin();
+        o.verify(repository, never()).findPinned(anyString());
+    }
+
+    @Test
+    public void togglePin_고정되지_않은_답글이고_기존에_고정되어_있는_답글_또한_없으면_새_답글을_고정() {
+        when(constraint.checkExistsAndGet("r")).thenReturn(reply);
+        when(reply.getArticleId()).thenReturn("a");
+        when(reply.pinned()).thenReturn(false);
+        when(repository.findPinned("a")).thenReturn(Optional.empty());
+
+        service.togglePin("r");
+
+        InOrder o = inOrder(constraint, repository, reply);
+        o.verify(constraint).checkExistsAndGet("r");
+        o.verify(reply).getArticleId();
+        o.verify(constraint).rejectIfWriterNotMatched("a");
+        o.verify(reply).pinned();
+        o.verify(repository).findPinned("a");
+        o.verify(reply).pin();
+        o.verify(reply, never()).unpin();
+    }
+
+    @Test
+    public void togglePin_고정되지_않은_답글이고_기존_답글이_고정되어_있다면_기존_답글은_고정_해제하고_새_답글은_고정() {
+        Reply previousPinnedReply = mock(Reply.class);
+        when(constraint.checkExistsAndGet("r")).thenReturn(reply);
+        when(reply.getArticleId()).thenReturn("a");
+        when(reply.pinned()).thenReturn(false);
+        when(repository.findPinned("a")).thenReturn(Optional.of(previousPinnedReply));
+
+        service.togglePin("r");
+
+        InOrder o = inOrder(constraint, repository, reply, previousPinnedReply);
+        o.verify(constraint).checkExistsAndGet("r");
+        o.verify(reply).getArticleId();
+        o.verify(constraint).rejectIfWriterNotMatched("a");
+        o.verify(reply).pinned();
+        o.verify(repository).findPinned("a");
+        o.verify(previousPinnedReply).unpin();
+        o.verify(reply).pin();
+        o.verify(reply, never()).unpin();
     }
 }

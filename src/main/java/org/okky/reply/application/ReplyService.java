@@ -47,6 +47,19 @@ public class ReplyService {
         reply.toggleAccept();
     }
 
+    public void togglePin(String replyId) {
+        Reply reply = constraint.checkExistsAndGet(replyId);
+        String articleId = reply.getArticleId();
+        constraint.rejectIfWriterNotMatched(articleId);
+
+        if (reply.pinned()) {
+            reply.unpin();
+        } else {
+            unpinIfExists(articleId);
+            reply.pin();
+        }
+    }
+
     @PreAuthorize("@replySecurityInspector.isThisWriter(#replyId)")
     public void remove(String replyId) {
         Reply reply = constraint.checkExistsAndGet(replyId);
@@ -56,5 +69,10 @@ public class ReplyService {
 
     public void removeForce(String replyId) {
         remove(replyId);
+    }
+
+    // -------------------------------------------------------
+    private void unpinIfExists(String articleId) {
+        repository.findPinned(articleId).ifPresent(Reply::unpin);
     }
 }
