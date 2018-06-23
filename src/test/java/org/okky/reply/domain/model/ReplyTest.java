@@ -3,7 +3,6 @@ package org.okky.reply.domain.model;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.*;
 
 public class ReplyTest {
@@ -22,12 +21,45 @@ public class ReplyTest {
     }
 
     @Test
-    public void togglePin_pin_후에는_해당_날짜가_존재하는_것을_확인() {
+    public void pin_고정_후에는_상태가_true여야_하며_날짜도_null이_아니어야_함() {
         Reply reply = fixture();
-        reply.togglePin();
+        reply.pin();
 
-        assertTrue("한 번 토글 후에는 상태가 true여야 한다.", reply.pinned());
-        assertThat("pin 후에는 답글이 고정된 날짜가 존재해야 한다.", reply.getPinnedOn(), is(notNullValue()));
+        assertTrue("고정하였으므로 상태는 true여야 한다.", reply.pinned());
+        assertNotNull("고정하였으므로 날짜가 null이 아니어야 한다.", reply.getPinnedOn());
+    }
+
+    @Test
+    public void pin_이미_고정_상태에서_여러번_고정하면_상태가_true여야_하며_날짜도_null이_아니어야_함() {
+        Reply reply = fixture();
+        reply.pin();
+        reply.pin();
+        reply.pin();
+        reply.pin();
+
+        assertTrue("고정하였으므로 상태는 true여야 한다.", reply.pinned());
+        assertNotNull("고정하였으므로 날짜가 null이 아니어야 한다.", reply.getPinnedOn());
+    }
+
+    @Test
+    public void unpin_고정_해제_후에는_상태가_false여야_하며_날짜도_null이어야_함() {
+        Reply reply = fixture();
+        reply.unpin();
+
+        assertFalse("고정한 상태가 아니므로 false여야 한다.", reply.pinned());
+        assertNull("고정된 상태가 아니므로 날짜는 null이어야 한다.", reply.getPinnedOn());
+    }
+
+    @Test
+    public void unpin_고정_상태가_아닌데_여러_번_고정_해제하면_상태가_false여야_하며_날짜도_null이어야_함() {
+        Reply reply = fixture();
+        reply.unpin();
+        reply.unpin();
+        reply.unpin();
+        reply.unpin();
+
+        assertFalse("고정한 상태가 아니므로 false여야 한다.", reply.pinned());
+        assertNull("고정된 상태가 아니므로 날짜는 null이어야 한다.", reply.getPinnedOn());
     }
 
     @Test

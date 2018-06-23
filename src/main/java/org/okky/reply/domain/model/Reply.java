@@ -95,11 +95,19 @@ public class Reply implements Aggregate {
             acceptedOn = currentTimeMillis();
     }
 
+    public void pin() {
+        setPinnedOn(currentTimeMillis());
+    }
+
+    public void unpin() {
+        setPinnedOn(null);
+    }
+
     public void togglePin() {
         if (pinned())
-            pinnedOn = null;
+            unpin();
         else
-            pinnedOn = currentTimeMillis();
+            pin();
     }
 
     public boolean accepted() {
