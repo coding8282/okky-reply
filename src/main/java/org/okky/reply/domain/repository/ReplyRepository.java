@@ -21,7 +21,7 @@ public interface ReplyRepository extends RevisionRepository<Reply, String, Long>
     List<String> findIdsByArticleId(@Param("articleId") String articleId);
     @Query("select distinct r.replierId from Reply r where r.articleId=:articleId order by r.replierId desc")
     Page<String> findRepliersByArticleId(@Param("articleId") String articleId, Pageable pageable);
-    @Query("select r from Reply r where r.articleId=:articleId and r.pinnedOn is not null")
+    @Query("select r from Reply r where r.articleId=:articleId and r.pinDetail is not null")
     Optional<Reply> findPinned(@Param("articleId") String articleId);
     long countByReplierId(String replierId);
     long countByArticleId(String articleId);
