@@ -23,7 +23,7 @@ public class ReplyRepositoryTest extends TestMother {
     public void findPinned() {
         Reply reply1 = fixture();
         Reply reply2 = fixture();
-        reply2.pin();
+        reply2.pin("m");
         repository.save(reply1);
         repository.save(reply2);
         Reply found = repository.findPinned("a-1").get();
