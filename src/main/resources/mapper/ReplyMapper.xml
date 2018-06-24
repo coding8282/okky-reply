@@ -9,12 +9,14 @@
         R.REPLIER_ID,
         R.REPLIER_NAME,
         R.BODY,
-        IF(R.ACCEPTED_ON!=null,'true','false') AS ACCEPTED,
+        IF(R.ACCEPTED_ON IS NOT NULL,1,0) AS ACCEPTED,
+        IF(R.PINNED_ON IS NOT NULL,1,0) AS PINNED,
         (SELECT COUNT(*) FROM reply_vote V WHERE V.REPLY_ID=R.ID AND V.DIRECTION='UP') AS UP_VOTE_COUNT,
         (SELECT COUNT(*) FROM reply_vote V WHERE V.REPLY_ID=R.ID AND V.DIRECTION='DOWN') AS DOWN_VOTE_COUNT,
         R.REPLIED_ON,
         R.UPDATED_ON,
         R.ACCEPTED_ON,
+        R.PINNED_ON,
         (R.REPLIER_ID=#{myId}) AS REPLIED_BY_ME,
         (SELECT COUNT(*)>0 FROM reply_vote V WHERE V.REPLY_ID=R.ID AND V.VOTER_ID=#{myId} AND V.DIRECTION='UP') AS UP_VOTED_BY_ME,
         (SELECT COUNT(*)>0 FROM reply_vote V WHERE V.REPLY_ID=R.ID AND V.VOTER_ID=#{myId} AND V.DIRECTION='DOWN') AS DOWN_VOTED_BY_ME
@@ -34,6 +36,11 @@
         FROM reply R
         <include refid="sql-filter"/>
         ORDER BY R.REPLIED_ON ASC
+    </select>
+    <select id="selectPinned" resultType="org.okky.reply.domain.repository.dto.ReplyDto">
+        <include refid="sql-projection"/>
+        FROM reply R
+        WHERE R.ARTICLE_ID = #{articleId} AND R.PINNED_ON IS NOT NULL
     </select>
     <select id="count" resultType="long">
         SELECT
