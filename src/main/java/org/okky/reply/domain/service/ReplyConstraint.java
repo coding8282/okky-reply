@@ -60,9 +60,10 @@ public class ReplyConstraint {
 
     public void rejectIfWriterNotMatched(String articleId) {
         try {
-            ResponseEntity<Boolean> result = template.getForEntity(format("/articles/%s/writers/%s/match", articleId, holder.getId()), Boolean.class);
+            String replierId = holder.getId();
+            ResponseEntity<Boolean> result = template.getForEntity(format("/articles/%s/writers/%s/match", articleId, replierId), Boolean.class);
             if (!result.getBody())
-                throw new ModelConflicted(format("답글 고정/해제는 오로지 게시글 작성자만 가능합니다: '%s'", articleId));
+                throw new ModelConflicted(format("답글 고정/해제는 오로지 게시글 작성자만 가능합니다: '%s', '%s'", articleId, replierId));
         } catch (HttpStatusCodeException e) {
             throw new ExternalServiceError(e.getResponseBodyAsByteArray());
         }
