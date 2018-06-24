@@ -38,6 +38,11 @@ class ReplyResource {
         return repository.existsByArticleId(articleId);
     }
 
+    @GetMapping(value = "/articles/{articleId}/replies/pinned", produces = APPLICATION_JSON_VALUE)
+    ReplyDto getPinned(@PathVariable String articleId) {
+        return mapper.selectPinned(articleId);
+    }
+
     @GetMapping(value = "/articles/{articleId}/replies", produces = APPLICATION_JSON_VALUE)
     PagingEnvelop getByArticle(
             @PathVariable String articleId,
@@ -88,6 +93,12 @@ class ReplyResource {
     void update(@PathVariable String replyId, @RequestBody ModifyReplyCommand cmd) {
         cmd.setReplyId(replyId);
         service.modify(cmd);
+    }
+
+    @PutMapping(value = "/replies/{replyId}/pin/toggle")
+    @ResponseStatus(NO_CONTENT)
+    void togglePin(@PathVariable String replyId, String memo) {
+        service.togglePin(replyId, memo);
     }
 
     @DeleteMapping(value = "/replies/{replyId}")
