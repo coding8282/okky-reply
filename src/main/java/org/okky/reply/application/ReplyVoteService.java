@@ -32,11 +32,10 @@ public class ReplyVoteService {
         boolean alreadyVoted = repository.wasAlreadyVoted(replyId, voterId);
         if (alreadyVoted) {
             ReplyVote vote = repository.find(replyId, voterId).get();
-            if (vote.isSameDirection(direction)) {
-                unVote(vote);
-            } else {
+            if (vote.isSameDirection(direction))
+                unvote(vote);
+            else
                 vote.reverseDirection();
-            }
         } else {
             vote(replyId, voterId, direction);
         }
@@ -48,7 +47,7 @@ public class ReplyVoteService {
         repository.save(vote);
     }
 
-    private void unVote(ReplyVote vote) {
+    private void unvote(ReplyVote vote) {
         repository.delete(vote);
     }
 }
