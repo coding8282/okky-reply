@@ -42,7 +42,7 @@ public class PinDetailTest extends TestMother {
 
     @Test
     public void new_메모가_51자라면_예외() {
-        expect(BadArgument.class, "탈퇴사유는 50자까지 가능합니다.");
+        expect(BadArgument.class, "메모는 50자까지 가능합니다.");
 
         String memo = "안녕하세요1안녕하세요1안녕하세요1안녕하세요1안녕하세요1안녕하세요1안녕하세요1안녕하세요1234";
         new PinDetail(memo);

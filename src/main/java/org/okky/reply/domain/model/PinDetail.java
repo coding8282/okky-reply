@@ -49,7 +49,7 @@ public class PinDetail implements ValueObject {
             this.memo = null;
         } else {
             String trimed = memo.trim();
-            assertArgLength(trimed, 50, format("탈퇴사유는 %d자까지 가능합니다.", 50));
+            assertArgLength(trimed, 50, format("메모는 %d자까지 가능합니다.", 50));
             this.memo = trimed;
         }
     }
