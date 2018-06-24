@@ -23,7 +23,7 @@ import static org.okky.share.util.JsonUtil.toPrettyJson;
 @Getter
 @Embeddable
 public class PinDetail implements ValueObject {
-    @Column(length = 50)
+    @Column(name = "PIN_MEMO", length = 50)
     String memo;
 
     @Column(columnDefinition = "BIGINT UNSIGNED")
