@@ -3,13 +3,12 @@ package org.okky.reply.application;
 import lombok.experimental.FieldDefaults;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InOrder;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.okky.reply.TestMother;
 import org.okky.reply.application.command.ToggleVoteCommand;
 import org.okky.reply.domain.model.ReplyVote;
+import org.okky.reply.domain.model.VotingDirection;
 import org.okky.reply.domain.repository.ReplyVoteRepository;
 import org.okky.reply.domain.service.ReplyConstraint;
 import org.okky.reply.domain.service.ReplyVoteConstraint;
@@ -17,10 +16,12 @@ import org.okky.reply.domain.service.ReplyVoteConstraint;
 import java.util.Optional;
 
 import static lombok.AccessLevel.PRIVATE;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
+import static org.okky.reply.domain.model.VotingDirection.UP;
 
 @RunWith(MockitoJUnitRunner.class)
 @FieldDefaults(level = PRIVATE)
@@ -35,6 +36,8 @@ public class ReplyVoteServiceTest extends TestMother {
     ReplyVoteConstraint replyVoteConstraint;
     @Mock
     ReplyVote vote;
+    @Captor
+    ArgumentCaptor<VotingDirection> captor;
 
     /**
      * 예를 들어 'UP'인 상태에서 'UP' toggle 요청이 들어오면 삭제
@@ -51,7 +54,11 @@ public class ReplyVoteServiceTest extends TestMother {
         InOrder o = inOrder(repository, replyConstraint, replyVoteConstraint, vote);
         o.verify(replyConstraint).checkExists("r");
         o.verify(replyVoteConstraint).checkVoterExists("v");
+        o.verify(repository).find("r", "v");
+        o.verify(vote).isSameDirection(captor.capture());
         o.verify(repository).delete(vote);
+
+        assertEquals("인자는 UP이어야 한다.", UP, captor.getValue());
     }
 
     /**
@@ -69,7 +76,11 @@ public class ReplyVoteServiceTest extends TestMother {
         InOrder o = inOrder(repository, replyConstraint, replyVoteConstraint, vote);
         o.verify(replyConstraint).checkExists("r");
         o.verify(replyVoteConstraint).checkVoterExists("v");
+        o.verify(repository).find("r", "v");
+        o.verify(vote).isSameDirection(captor.capture());
         o.verify(vote).reverseDirection();
+
+        assertEquals("인자는 UP이어야 한다.", UP, captor.getValue());
     }
 
     @Test
