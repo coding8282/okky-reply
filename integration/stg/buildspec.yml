@@ -1,0 +1,17 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - mvn clean install -P stg
+
+artifacts:
+  files:
+    - integration/stg/appspec.yml
+    - integration/stg/scripts/*
+    - target/okky-reply-1.0.0.jar
+  discard-paths: yes
+
+cache:
+  paths:
+    - '/root/.m2/**/*'

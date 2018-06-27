@@ -1,42 +1,46 @@
 package org.okky.reply.resource;
 
+import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
+import static lombok.AccessLevel.PRIVATE;
 
 @Component
+@AllArgsConstructor
+@FieldDefaults(level = PRIVATE)
 public class ClaimInterceptor extends HandlerInterceptorAdapter {
+    ContextHolder holder;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        String requesterId = request.getHeader("X-Requester-Id");
-        String requesterGroups = request.getHeader("X-Requester-Groups");
+        String id = request.getHeader("X-Requester-Id");
+        String groups = Objects.toString(request.getHeader("X-Requester-Groups"), "");
 
-        List<GrantedAuthority> authorities = getAuthorities(requesterGroups);
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(null, null, authorities);
-        ContextHelper.setId(requesterId);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        List<GrantedAuthority> authorities = stream(groups.split(","))
+                .map(this::toAuthority)
+                .collect(toList());
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(id, null, authorities);
+        holder.setAuthentication(authentication);
         return true;
     }
 
-    private List<GrantedAuthority> getAuthorities(String requesterGroups) {
-        if (requesterGroups == null)
-            return Collections.emptyList();
-
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        for (String group : requesterGroups.split(",")) {
-            if (group.equals("admin")) {
-                authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-            }
+    private SimpleGrantedAuthority toAuthority(String group) {
+        if (group.equals("admin")) {
+            return new SimpleGrantedAuthority("ROLE_ADMIN");
+        } else {
+            return new SimpleGrantedAuthority("ROLE_NORMAL");
         }
-        return authorities;
     }
 }

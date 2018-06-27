@@ -1,6 +1,7 @@
 package org.okky.reply.domain.service;
 
 import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.okky.share.execption.ExternalServiceError;
 import org.okky.share.execption.ModelNotExists;
 import org.springframework.stereotype.Service;
@@ -8,11 +9,13 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import static java.lang.String.format;
+import static lombok.AccessLevel.PRIVATE;
 
 @Service
 @AllArgsConstructor
+@FieldDefaults(level = PRIVATE)
 public class ReplyVoteConstraint {
-    private RestTemplate template;
+    RestTemplate template;
 
     public void checkVoterExists(String voterId) {
         try {

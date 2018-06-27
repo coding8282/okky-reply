@@ -26,6 +26,7 @@ class ReplyResource {
     ReplyService service;
     ReplyMapper mapper;
     ReplyRepository repository;
+    ContextHolder holder;
 
     @GetMapping(value = "/replies/{replyId}/exists")
     boolean exists(@PathVariable String replyId) {
@@ -37,13 +38,18 @@ class ReplyResource {
         return repository.existsByArticleId(articleId);
     }
 
+    @GetMapping(value = "/articles/{articleId}/replies/pinned", produces = APPLICATION_JSON_VALUE)
+    ReplyDto getPinned(@PathVariable String articleId) {
+        return mapper.selectPinned(articleId);
+    }
+
     @GetMapping(value = "/articles/{articleId}/replies", produces = APPLICATION_JSON_VALUE)
     PagingEnvelop getByArticle(
             @PathVariable String articleId,
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "20") int pageSize) {
         Map<String, Object> params = new HashMap<>();
-        params.put("myId", ContextHelper.getId());
+        params.put("myId", holder.getId());
         params.put("articleId", articleId);
         params.put("offset", (pageNo - 1) * pageSize);
         params.put("limit", pageSize);
@@ -71,7 +77,7 @@ class ReplyResource {
     void write(
             @PathVariable String articleId,
             @RequestBody WriteReplyCommand cmd) {
-        cmd.setReplierId(ContextHelper.getId());
+        cmd.setReplierId(holder.getId());
         cmd.setArticleId(articleId);
         service.write(cmd);
     }
@@ -87,6 +93,12 @@ class ReplyResource {
     void update(@PathVariable String replyId, @RequestBody ModifyReplyCommand cmd) {
         cmd.setReplyId(replyId);
         service.modify(cmd);
+    }
+
+    @PutMapping(value = "/replies/{replyId}/pin/toggle")
+    @ResponseStatus(NO_CONTENT)
+    void togglePin(@PathVariable String replyId, String memo) {
+        service.togglePin(replyId, memo);
     }
 
     @DeleteMapping(value = "/replies/{replyId}")

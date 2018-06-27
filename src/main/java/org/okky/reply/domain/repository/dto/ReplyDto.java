@@ -9,13 +9,16 @@ public class ReplyDto {
     String replierId;
     String replierName;
     String body;
-    Boolean accepted;
-    Long upVoteCount;
-    Long downVoteCount;
-    Long repliedOn;
-    Long updatedOn;
-    Long acceptedOn;
-    Boolean repliedByMe;
-    Boolean upVotedByMe;
-    Boolean downVotedByMe;
+    String pinMemo;
+    boolean accepted;
+    boolean pinned;
+    long upVoteCount;
+    long downVoteCount;
+    long repliedOn;
+    long updatedOn;
+    long acceptedOn;
+    long pinnedOn;
+    boolean repliedByMe;
+    boolean upVotedByMe;
+    boolean downVotedByMe;
 }

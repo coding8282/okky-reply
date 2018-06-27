@@ -11,5 +11,6 @@ import java.util.Map;
 @Mapper
 public interface ReplyMapper {
     List<ReplyDto> select(Map<String, Object> params);
+    ReplyDto selectPinned(String articleId);
     long count(Map<String, Object> params);
 }

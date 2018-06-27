@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static lombok.AccessLevel.PRIVATE;
-import static org.okky.reply.application.ModelMapper.toReply;
-import static org.okky.reply.application.ModelMapper.toReplyWrote;
 
 @Service
 @Transactional
@@ -25,15 +23,16 @@ public class ReplyService {
     ReplyRepository repository;
     ReplyConstraint constraint;
     ReplyProxy proxy;
+    ModelMapper mapper;
 
     public void write(WriteReplyCommand cmd) {
         String articleId = cmd.getArticleId();
 
         constraint.checkArticleExists(articleId);
         constraint.rejectWriteIfArticleBlocked(articleId);
-        Reply reply = toReply(cmd);
+        Reply reply = mapper.toModel(cmd);
         repository.save(reply);
-        proxy.sendEvent(toReplyWrote(reply));
+        proxy.sendEvent(mapper.toEvent(reply));
     }
 
     @PreAuthorize("@replySecurityInspector.isThisWriter(#cmd.replyId)")
@@ -48,6 +47,19 @@ public class ReplyService {
         reply.toggleAccept();
     }
 
+    public void togglePin(String replyId, String memo) {
+        Reply reply = constraint.checkExistsAndGet(replyId);
+        String articleId = reply.getArticleId();
+        constraint.rejectIfWriterNotMatched(articleId);
+
+        if (reply.pinned()) {
+            reply.unpin();
+        } else {
+            unpinIfExists(articleId);
+            reply.pin(memo);
+        }
+    }
+
     @PreAuthorize("@replySecurityInspector.isThisWriter(#replyId)")
     public void remove(String replyId) {
         Reply reply = constraint.checkExistsAndGet(replyId);
@@ -57,5 +69,10 @@ public class ReplyService {
 
     public void removeForce(String replyId) {
         remove(replyId);
+    }
+
+    // -------------------------------------------------------
+    private void unpinIfExists(String articleId) {
+        repository.findPinned(articleId).ifPresent(Reply::unpin);
     }
 }

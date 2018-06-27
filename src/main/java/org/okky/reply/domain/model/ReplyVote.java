@@ -3,6 +3,7 @@ package org.okky.reply.domain.model;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.okky.share.domain.Aggregate;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -11,53 +12,70 @@ import javax.persistence.*;
 import java.util.UUID;
 
 import static javax.persistence.EnumType.STRING;
+import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
+import static org.okky.reply.domain.model.VotingDirection.DOWN;
+import static org.okky.reply.domain.model.VotingDirection.UP;
 import static org.okky.share.domain.AssertionConcern.assertArgNotNull;
+import static org.okky.share.util.JsonUtil.toPrettyJson;
 
 @NoArgsConstructor(access = PROTECTED)
-@EqualsAndHashCode(of = "id", callSuper = false)
+@EqualsAndHashCode(of = "id")
+@FieldDefaults(level = PRIVATE)
 @Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@Table(uniqueConstraints = {
+        @UniqueConstraint(
+                name = "U_REPLY_ID_VOTER_ID",
+                columnNames = {"REPLY_ID", "VOTER_ID"})
+})
 public class ReplyVote implements Aggregate {
     @Id
     @Column(length = 50)
-    private String id;
+    String id;
 
-    @Column(nullable = false, length = 50)
-    private String replyId;
+    @Column(name = "REPLY_ID", nullable = false, length = 50)
+    String replyId;
 
-    @Column(nullable = false)
-    private String voterId;
+    @Column(name = "VOTER_ID", nullable = false)
+    String voterId;
 
     @Enumerated(STRING)
     @Column(nullable = false, columnDefinition = "CHAR(5)")
-    private Voting voting;
+    VotingDirection direction;
 
     @CreatedDate
     @Column(nullable = false, updatable = false, columnDefinition = "BIGINT UNSIGNED")
-    private long votedOn;
+    long votedOn;
 
-    public ReplyVote(String replyId, String voterId, Voting voting) {
+    public ReplyVote(String replyId, String voterId, VotingDirection direction) {
         setId("rv-" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 15));
         setReplyId(replyId);
         setVoterId(voterId);
-        setVoting(voting);
+        setDirection(direction);
     }
 
     public static ReplyVote sample() {
         String replyId = "r-a33";
         String voterId = "m-aa333a33";
-        Voting voting = Voting.UP;
-        return new ReplyVote(replyId, voterId, voting);
+        VotingDirection direction = UP;
+        return new ReplyVote(replyId, voterId, direction);
     }
 
     public static void main(String[] args) {
-        System.out.println(sample());
+        System.out.println(toPrettyJson(sample()));
     }
 
-    public boolean isSameDirection(Voting voting) {
-        return this.voting == voting;
+    public void reverseDirection() {
+        if (direction == UP)
+            setDirection(DOWN);
+        else
+            setDirection(UP);
+    }
+
+    public boolean isSameDirection(VotingDirection direction) {
+        return this.direction == direction;
     }
 
     // ------------------------
@@ -76,8 +94,8 @@ public class ReplyVote implements Aggregate {
         this.voterId = voterId;
     }
 
-    private void setVoting(Voting voting) {
-        assertArgNotNull(voting, "투표는 필수입니다.");
-        this.voting = voting;
+    private void setDirection(VotingDirection direction) {
+        assertArgNotNull(direction, "투표 방향은 필수입니다.");
+        this.direction = direction;
     }
 }

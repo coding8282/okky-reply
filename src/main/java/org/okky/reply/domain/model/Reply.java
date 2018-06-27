@@ -3,9 +3,9 @@ package org.okky.reply.domain.model;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.envers.Audited;
 import org.okky.share.domain.Aggregate;
-import org.okky.share.domain.AssertionConcern;
 import org.okky.share.util.JsonUtil;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -15,10 +15,14 @@ import java.util.UUID;
 
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
+import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
+import static org.okky.share.domain.AssertionConcern.assertArgLength;
+import static org.okky.share.domain.AssertionConcern.assertArgNotNull;
 
 @NoArgsConstructor(access = PROTECTED)
-@EqualsAndHashCode(of = "id", callSuper = false)
+@EqualsAndHashCode(of = "id")
+@FieldDefaults(level = PRIVATE)
 @Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -30,30 +34,33 @@ import static lombok.AccessLevel.PROTECTED;
 public class Reply implements Aggregate {
     @Id
     @Column(length = 50)
-    private String id;
+    String id;
 
     @Column(name = "ARTICLE_ID", nullable = false, length = 50)
-    private String articleId;
+    String articleId;
 
     @Column(nullable = false, length = 500)
     @Audited
-    private String body;
+    String body;
 
     @Column(nullable = false)
-    private String replierId;
+    String replierId;
 
     @Column(nullable = false)
-    private String replierName;
+    String replierName;
 
     @Column(nullable = false, updatable = false, columnDefinition = "BIGINT UNSIGNED")
-    private long repliedOn;
+    long repliedOn;
 
     @LastModifiedDate
     @Column(columnDefinition = "BIGINT UNSIGNED")
-    private Long updatedOn;
+    Long updatedOn;
 
     @Column(columnDefinition = "BIGINT UNSIGNED")
-    private Long acceptedOn;
+    Long acceptedOn;
+
+    @Embedded
+    PinDetail pinDetail;
 
     public Reply(String articleId, String body, String replierId, String replierName) {
         setId("r-" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 15));
@@ -62,6 +69,7 @@ public class Reply implements Aggregate {
         setReplierId(replierId);
         setReplierName(replierName);
         setRepliedOn(currentTimeMillis());
+        setPinDetail(null);
     }
 
     public static Reply sample() {
@@ -87,39 +95,55 @@ public class Reply implements Aggregate {
             acceptedOn = currentTimeMillis();
     }
 
+    public void pin(String memo) {
+        setPinDetail(new PinDetail(memo));
+    }
+
+    public void unpin() {
+        setPinDetail(null);
+    }
+
     public boolean accepted() {
         return acceptedOn != null;
+    }
+
+    public boolean pinned() {
+        return pinDetail != null;
     }
 
     // ---------------------------------
 
     private void setId(String id) {
-        AssertionConcern.assertArgNotNull(id, "id는 필수입니다.");
+        assertArgNotNull(id, "id는 필수입니다.");
         this.id = id;
     }
 
     private void setArticleId(String articleId) {
-        AssertionConcern.assertArgNotNull(articleId, "게시글 id는 필수입니다.");
+        assertArgNotNull(articleId, "게시글 id는 필수입니다.");
         this.articleId = articleId;
     }
 
     private void setBody(String body) {
         String trimed = body.trim();
-        AssertionConcern.assertArgLength(trimed, 1, 500, format("답글은 %d~%d자까지 가능합니다.", 1, 500));
+        assertArgLength(trimed, 1, 500, format("답글은 %d~%d자까지 가능합니다.", 1, 500));
         this.body = trimed;
     }
 
     private void setReplierId(String replierId) {
-        AssertionConcern.assertArgNotNull(replierId, "답변자 id는 필수입니다.");
+        assertArgNotNull(replierId, "답변자 id는 필수입니다.");
         this.replierId = replierId;
     }
 
     private void setReplierName(String replierName) {
-        AssertionConcern.assertArgNotNull(replierName, "답변자 이름은 필수입니다.");
+        assertArgNotNull(replierName, "답변자 이름은 필수입니다.");
         this.replierName = replierName;
     }
 
     private void setRepliedOn(long repliedOn) {
         this.repliedOn = repliedOn;
+    }
+
+    private void setPinDetail(PinDetail pinDetail) {
+        this.pinDetail = pinDetail;
     }
 }

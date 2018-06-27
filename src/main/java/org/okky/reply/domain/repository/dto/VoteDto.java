@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class VoteDto {
-    String repyId;
+    String replyId;
     Long upVoteCount;
     Long downVoteCount;
     Boolean upVotedByMe;

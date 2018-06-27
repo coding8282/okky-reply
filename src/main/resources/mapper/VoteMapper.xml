@@ -5,17 +5,17 @@
     <select id="selectVoteSummaryByReplyId" resultType="org.okky.reply.domain.repository.dto.VoteDto">
         SELECT
         ID as REPLY_ID,
-        (SELECT COUNT(*) FROM reply_vote V WHERE V.REPLY_ID=R.ID AND V.VOTING='UP') AS UP_VOTE_COUNT,
-        (SELECT COUNT(*) FROM reply_vote V WHERE V.REPLY_ID=R.ID AND V.VOTING='DOWN') AS DOWN_VOTE_COUNT,
-        (SELECT COUNT(*)>0 FROM reply_vote V WHERE V.REPLY_ID=R.ID AND V.VOTER_ID=#{myId} AND V.VOTING='UP') AS UP_VOTED_BY_ME,
-        (SELECT COUNT(*)>0 FROM reply_vote V WHERE V.REPLY_ID=R.ID AND V.VOTER_ID=#{myId} AND V.VOTING='DOWN') AS DOWN_VOTED_BY_ME
+        (SELECT COUNT(*) FROM reply_vote V WHERE V.REPLY_ID=R.ID AND V.DIRECTION='UP') AS UP_VOTE_COUNT,
+        (SELECT COUNT(*) FROM reply_vote V WHERE V.REPLY_ID=R.ID AND V.DIRECTION='DOWN') AS DOWN_VOTE_COUNT,
+        (SELECT COUNT(*)>0 FROM reply_vote V WHERE V.REPLY_ID=R.ID AND V.VOTER_ID=#{myId} AND V.DIRECTION='UP') AS UP_VOTED_BY_ME,
+        (SELECT COUNT(*)>0 FROM reply_vote V WHERE V.REPLY_ID=R.ID AND V.VOTER_ID=#{myId} AND V.DIRECTION='DOWN') AS DOWN_VOTED_BY_ME
         FROM reply R
         WHERE R.ID=#{replyId}
     </select>
     <select id="selectVoteStatisticsByReplierId" resultType="org.okky.reply.domain.repository.dto.VoteStatisticsDto">
         SELECT
         (SELECT COUNT(*) FROM reply_vote V WHERE V.VOTER_ID=#{replierId}) AS TOTAL,
-        (SELECT COUNT(*) FROM reply_vote V WHERE V.VOTER_ID=#{replierId} AND V.VOTING='UP') AS UP,
-        (SELECT COUNT(*) FROM reply_vote V WHERE V.VOTER_ID=#{replierId} AND V.VOTING='DOWN') AS DOWN
+        (SELECT COUNT(*) FROM reply_vote V WHERE V.VOTER_ID=#{replierId} AND V.DIRECTION='UP') AS UP,
+        (SELECT COUNT(*) FROM reply_vote V WHERE V.VOTER_ID=#{replierId} AND V.DIRECTION='DOWN') AS DOWN
     </select>
 </mapper>

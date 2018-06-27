@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 class AppConfig {
-    @Value("${app.service-url}")
+    @Value("${app.internal-endpoint}")
     String serviceUrl;
 
     @Bean

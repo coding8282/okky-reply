@@ -3,12 +3,12 @@ version: 0.2
 phases:
   build:
     commands:
-      - mvn clean install -Pprod
+      - mvn clean install -P prod
 
 artifacts:
   files:
-    - integration/appspec.yml
-    - integration/scripts/*
+    - integration/prod/appspec.yml
+    - integration/prod/scripts/*
     - target/okky-reply-1.0.0.jar
   discard-paths: yes
 
