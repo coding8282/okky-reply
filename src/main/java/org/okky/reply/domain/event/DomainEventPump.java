@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
+import org.okky.share.event.DomainEvent;
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import static java.lang.Class.forName;
@@ -15,8 +15,7 @@ import static org.springframework.cloud.aws.messaging.listener.SqsMessageDeletio
 @Component
 @AllArgsConstructor
 @FieldDefaults(level = PRIVATE)
-class SQSConsumer {
-    ApplicationEventPublisher publisher;
+class DomainEventPump {
     ObjectMapper mapper;
 
     @SqsListener(value = "${app.queue.reply}", deletionPolicy = ON_SUCCESS)
@@ -24,7 +23,7 @@ class SQSConsumer {
     void receive(String json) {
         String message = mapper.readTree(json).get("Message").asText();
         String eventName = mapper.readTree(message).get("eventName").asText();
-        Object event = mapper.readValue(message, forName(eventName));
-        publisher.publishEvent(event);
+        DomainEvent event = (DomainEvent) mapper.readValue(message, forName(eventName));
+        DomainEventPublisher.fire(event);
     }
 }
