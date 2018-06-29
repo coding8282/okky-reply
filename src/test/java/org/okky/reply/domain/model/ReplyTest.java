@@ -1,12 +1,28 @@
 package org.okky.reply.domain.model;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.okky.reply.TestMother;
+import org.okky.reply.domain.event.DomainEventPublisher;
+import org.okky.share.event.ReplyPinned;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(DomainEventPublisher.class)
 public class ReplyTest extends TestMother {
+    @Before
+    public void setUp() {
+        PowerMockito.mockStatic(DomainEventPublisher.class);
+    }
+
     @Test
     public void new_최초에는_pin_상태가_아님() {
         Reply reply = fixture();
@@ -16,14 +32,23 @@ public class ReplyTest extends TestMother {
 
     @Test
     public void pin_고정_후에는_상태가_true여야_하며_날짜도_null이_아니어야_함() {
+        PowerMockito.doNothing().when(DomainEventPublisher.class);
+        DomainEventPublisher.fire(any(ReplyPinned.class));
+
         Reply reply = fixture();
         reply.pin("m");
 
         assertTrue("고정하였으므로 상태는 true여야 한다.", reply.pinned());
+
+        PowerMockito.verifyStatic(DomainEventPublisher.class);
+        DomainEventPublisher.fire(any(ReplyPinned.class));
     }
 
     @Test
     public void pin_이미_고정_상태에서_여러번_고정하면_상태가_true여야_하며_날짜도_null이_아니어야_함() {
+        PowerMockito.doNothing().when(DomainEventPublisher.class);
+        DomainEventPublisher.fire(any(ReplyPinned.class));
+
         Reply reply = fixture();
         reply.pin("m");
         reply.pin("m");
@@ -31,6 +56,9 @@ public class ReplyTest extends TestMother {
         reply.pin("m");
 
         assertTrue("고정하였으므로 상태는 true여야 한다.", reply.pinned());
+
+        PowerMockito.verifyStatic(DomainEventPublisher.class, times(4));
+        DomainEventPublisher.fire(any(ReplyPinned.class));
     }
 
     @Test

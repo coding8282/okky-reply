@@ -4,10 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.okky.reply.application.command.ModifyReplyCommand;
 import org.okky.reply.application.command.WriteReplyCommand;
+import org.okky.reply.domain.event.DomainEventPublisher;
 import org.okky.reply.domain.model.Reply;
 import org.okky.reply.domain.repository.ReplyRepository;
 import org.okky.reply.domain.service.ReplyConstraint;
-import org.okky.reply.domain.service.ReplyProxy;
 import org.okky.share.event.ReplyRemoved;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,6 @@ import static lombok.AccessLevel.PRIVATE;
 public class ReplyService {
     ReplyRepository repository;
     ReplyConstraint constraint;
-    ReplyProxy proxy;
     ModelMapper mapper;
 
     public void write(WriteReplyCommand cmd) {
@@ -32,7 +31,7 @@ public class ReplyService {
         constraint.rejectWriteIfArticleBlocked(articleId);
         Reply reply = mapper.toModel(cmd);
         repository.save(reply);
-        proxy.sendEvent(mapper.toEvent(reply));
+        DomainEventPublisher.fire(mapper.toEvent(reply));
     }
 
     @PreAuthorize("@replySecurityInspector.isThisWriter(#cmd.replyId)")
@@ -64,7 +63,7 @@ public class ReplyService {
     public void remove(String replyId) {
         Reply reply = constraint.checkExistsAndGet(replyId);
         repository.delete(reply);
-        proxy.sendEvent(new ReplyRemoved(replyId));
+        DomainEventPublisher.fire(new ReplyRemoved(replyId));
     }
 
     public void removeForce(String replyId) {

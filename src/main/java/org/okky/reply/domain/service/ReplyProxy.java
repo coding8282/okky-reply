@@ -1,10 +1,7 @@
 package org.okky.reply.domain.service;
 
 import lombok.experimental.FieldDefaults;
-import org.okky.share.event.DomainEvent;
-import org.okky.share.event.RepliesRemoved;
-import org.okky.share.event.ReplyRemoved;
-import org.okky.share.event.ReplyWrote;
+import org.okky.share.event.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.aws.messaging.core.NotificationMessagingTemplate;
@@ -25,6 +22,8 @@ public class ReplyProxy {
     String topicReplyRemoved;
     @Value("${app.topic.replies-removed}")
     String topicRepliesRemoved;
+    @Value("${app.topic.reply-pinned}")
+    String topicReplyPinned;
 
     public void sendEvent(ReplyWrote event) {
         send(topicReplyWrote, event);
@@ -36,6 +35,10 @@ public class ReplyProxy {
 
     public void sendEvent(RepliesRemoved event) {
         send(topicRepliesRemoved, event);
+    }
+
+    public void sendEvent(ReplyPinned event) {
+        send(topicReplyPinned, event);
     }
 
     // ------------------------------------
