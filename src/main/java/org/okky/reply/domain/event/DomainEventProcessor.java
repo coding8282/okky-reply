@@ -57,5 +57,3 @@ class LogAspect {
         logger.info("Event: {}", event);
     }
 }
-
-
