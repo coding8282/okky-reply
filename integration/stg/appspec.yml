@@ -12,3 +12,6 @@ hooks:
   AfterInstall:
     - location: start-app.sh
       timeout: 120
+  ValidateService:
+    - location: validate-app.sh
+      timeout: 120
