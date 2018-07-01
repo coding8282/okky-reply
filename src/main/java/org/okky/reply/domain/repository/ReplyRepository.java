@@ -1,6 +1,7 @@
 package org.okky.reply.domain.repository;
 
 import org.okky.reply.domain.model.Reply;
+import org.okky.reply.domain.repository.dto.ReplyReducedDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -17,6 +18,8 @@ public interface ReplyRepository extends RevisionRepository<Reply, String, Long>
     boolean existsByArticleId(String articleId);
     void save(Reply reply);
     Optional<Reply> findById(String id);
+    @Query("select new org.okky.reply.domain.repository.dto.ReplyReducedDto(r) from Reply r where r.id=:id")
+    Optional<ReplyReducedDto> findDtoById(@Param("id") String id);
     @Query("select r.id from Reply r where r.articleId=:articleId")
     List<String> findIdsByArticleId(@Param("articleId") String articleId);
     @Query("select distinct r.replierId from Reply r where r.articleId=:articleId order by r.replierId desc")
