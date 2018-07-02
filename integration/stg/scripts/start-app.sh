@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-nohup java -jar \
-/home/ec2-user/okky-reply-1.0.0.jar \
---spring.cloud.config.label=develop \
-> /dev/null 2> /dev/null < /dev/null &
+sudo chmod +x /home/ec2-user/okky-reply-1.0.0.jar
+sudo ln -sf /home/ec2-user/okky-reply-1.0.0.jar /etc/init.d/okky-reply
+sudo service okky-reply start
+sleep 10s
