@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.envers.Audited;
+import org.okky.reply.domain.event.DomainEventPublisher;
 import org.okky.share.domain.Aggregate;
+import org.okky.share.event.ReplyPinned;
 import org.okky.share.util.JsonUtil;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -97,6 +99,14 @@ public class Reply implements Aggregate {
 
     public void pin(String memo) {
         setPinDetail(new PinDetail(memo));
+        DomainEventPublisher.fire(new ReplyPinned(
+                id,
+                articleId,
+                replierId,
+                replierName,
+                pinDetail.getMemo(),
+                pinDetail.getPinnedOn()
+        ));
     }
 
     public void unpin() {

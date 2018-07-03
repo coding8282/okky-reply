@@ -2,4 +2,4 @@ spring:
   cloud:
     config:
       uri: http://config.okky.io:9000
-      name: common,topic,queue,app-reply
+      name: common,queue,app-reply

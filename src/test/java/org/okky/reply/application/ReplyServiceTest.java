@@ -1,29 +1,33 @@
 package org.okky.reply.application;
 
 import lombok.experimental.FieldDefaults;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.okky.reply.TestMother;
 import org.okky.reply.application.command.ModifyReplyCommand;
 import org.okky.reply.application.command.WriteReplyCommand;
+import org.okky.reply.domain.event.DomainEventPublisher;
 import org.okky.reply.domain.model.Reply;
 import org.okky.reply.domain.repository.ReplyRepository;
 import org.okky.reply.domain.service.ReplyConstraint;
 import org.okky.reply.domain.service.ReplyProxy;
-import org.okky.share.event.ReplyRemoved;
 import org.okky.share.event.ReplyWrote;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Optional;
 
 import static lombok.AccessLevel.PRIVATE;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(DomainEventPublisher.class)
 @FieldDefaults(level = PRIVATE)
 public class ReplyServiceTest extends TestMother {
     @InjectMocks
@@ -41,21 +45,30 @@ public class ReplyServiceTest extends TestMother {
     @Mock
     ReplyWrote event;
 
+    @Before
+    public void setUp() {
+        PowerMockito.mockStatic(DomainEventPublisher.class);
+    }
+
     @Test
     public void write() {
         WriteReplyCommand cmd = new WriteReplyCommand("a", "r", "rn", "b");
         when(mapper.toModel(cmd)).thenReturn(reply);
         when(mapper.toEvent(reply)).thenReturn(event);
+        PowerMockito.doNothing().when(DomainEventPublisher.class);
+        DomainEventPublisher.fire(ArgumentMatchers.any());
 
         service.write(cmd);
 
-        InOrder o = inOrder(constraint, mapper, repository, proxy);
+        InOrder o = inOrder(constraint, mapper, repository);
         o.verify(constraint).checkArticleExists("a");
         o.verify(constraint).rejectWriteIfArticleBlocked("a");
         o.verify(mapper).toModel(cmd);
         o.verify(repository).save(reply);
         o.verify(mapper).toEvent(reply);
-        o.verify(proxy).sendEvent(event);
+
+        PowerMockito.verifyStatic(DomainEventPublisher.class);
+        DomainEventPublisher.fire(ArgumentMatchers.any());
     }
 
     @Test
@@ -84,26 +97,34 @@ public class ReplyServiceTest extends TestMother {
     @Test
     public void remove() {
         when(constraint.checkExistsAndGet("r")).thenReturn(reply);
+        PowerMockito.doNothing().when(DomainEventPublisher.class);
+        DomainEventPublisher.fire(ArgumentMatchers.any());
 
         service.remove("r");
 
-        InOrder o = inOrder(constraint, repository, proxy);
+        InOrder o = inOrder(constraint, repository);
         o.verify(constraint).checkExistsAndGet("r");
         o.verify(repository).delete(reply);
-        o.verify(proxy).sendEvent(isA(ReplyRemoved.class));
+
+        PowerMockito.verifyStatic(DomainEventPublisher.class);
+        DomainEventPublisher.fire(ArgumentMatchers.any());
     }
 
     @Test
     public void removeForce() {
         // TODO: 2018. 6. 17. 로직이 중복되어 있는 다른 메소드 콜을 검증할 수 없을까?
         when(constraint.checkExistsAndGet("r")).thenReturn(reply);
+        PowerMockito.doNothing().when(DomainEventPublisher.class);
+        DomainEventPublisher.fire(ArgumentMatchers.any());
 
         service.removeForce("r");
 
         InOrder o = inOrder(constraint, repository, proxy);
         o.verify(constraint).checkExistsAndGet("r");
         o.verify(repository).delete(reply);
-        o.verify(proxy).sendEvent(isA(ReplyRemoved.class));
+
+        PowerMockito.verifyStatic(DomainEventPublisher.class);
+        DomainEventPublisher.fire(ArgumentMatchers.any());
     }
 
     @Test
