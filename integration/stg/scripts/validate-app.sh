@@ -12,16 +12,12 @@ do
 	    echo "Service is up and running successfully after $counter attempts!"
         exit 0
     else
-        checkRetryExceeded
+        if [ $counter -gt $MAX_RETRY ]
+        then
+            echo "It's considered fail to start service."
+            exit 1
+        fi
         echo "Check service is running? - $counter/$MAX_RETRY"
         sleep $CHECK_INTERVAL
     fi
 done
-
-function checkRetryExceeded(){
-    if [ $counter -gt $MAX_RETRY ]
-    then
-        echo "It's considered fail to start service."
-        exit 1
-    fi
-}
