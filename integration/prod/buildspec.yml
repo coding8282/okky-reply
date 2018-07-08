@@ -3,6 +3,7 @@ version: 0.2
 phases:
   build:
     commands:
+      - aws s3 cp s3://okky-config/settings.xml /root/.m2/settings.xml
       - mvn clean install -P prod
 
 artifacts:
